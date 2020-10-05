@@ -5,39 +5,88 @@
     <meta charset="UTF-8">
     <script>
 
-        var data = [
-            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 6, 6, 6, 6, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 6, 6, 6, 6, 2, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 6, 6, 6, 6, 0, 0, 2, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 6, 6, 0, 0, 2, 0, 0, 2, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 6, 6, 0, 6, 0, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 0, 0, 0, 6, 0, 6, 6, 6, 0, 6, 6, 6, 6, 0, 0, 1, 1, 6, 6],
-            [6, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 6, 6],
-            [6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 0, 6, 0, 6, 0, 0, 1, 1, 6, 6],
-            [6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-        ];
-        var gc, px = 12, py = 8; //キャラクターの初期の場所。 gcはnull
+    //2がなくなってゲームクリア(配列 dataの中に2がなければを条件にする)
+    //ゲームをクリアしたら変数が変更される
+    //init()を呼び出す。
+    //変数によって、読み込むvar dataを変えていく。
+    //リセットボタンを押したらそのステージの初期値になる。
 
-        /**
-         * 初期化関数
-         */
+
+
+    var gc, px, py; //キャラクターの初期の場所。 gcはnull
+
+    // ======= ここから変更 ====================
+     var stg = 0; //ステージ0から始まる。
+     var data = [];
+
+     var stage_map = [
+         [
+           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+           [6, 0, 0, 0, 6, 0, 0, 0, 6, 6],
+           [6, 0, 0, 0, 2, 0, 0, 0, 1, 6],
+           [6, 0, 0, 0, 0, 2, 0, 0, 1, 6],
+           [6, 0, 6, 0, 0, 6, 0, 0, 6, 6],
+           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+         ],[
+           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+           [6, 0, 0, 0, 6, 0, 0, 6, 6, 6],
+           [6, 0, 0, 2, 2, 0, 0, 1, 1, 6],
+           [6, 0, 0, 2, 0, 2, 0, 1, 1, 6],
+           [6, 6, 0, 0, 0, 6, 0, 6, 6, 6],
+           [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+         ]
+         ];
+
+         var stage_map_redo = [  //やり直し様に初期値をセット
+             [
+               [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+               [6, 0, 0, 0, 6, 0, 0, 0, 6, 6],
+               [6, 0, 0, 0, 2, 0, 0, 0, 1, 6],
+               [6, 0, 0, 0, 0, 2, 0, 0, 1, 6],
+               [6, 0, 6, 0, 0, 6, 0, 0, 6, 6],
+               [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+             ],[
+               [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+               [6, 0, 0, 0, 6, 0, 0, 6, 6, 6],
+               [6, 0, 0, 2, 2, 0, 0, 1, 1, 6],
+               [6, 0, 0, 2, 0, 2, 0, 1, 1, 6],
+               [6, 6, 0, 0, 0, 6, 0, 6, 6, 6],
+               [6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+             ]
+             ];
+     // ======================ここまで変更==================
+
+
         function init() {
-            gc = document.getElementById("soko").getContext("2d"); //時計のプログラムを復習
-            onkeydown = mykeydown; //キーボードを押した時の動作
-            repaint();
+          if (stg >= stage_map.length) return; //stg=1までで終わり
+            data = stage_map[stg];  // この行を追加
+              gc = document.getElementById("soko").getContext("2d"); //81行目のcanvasタグを呼び出す
+              onkeydown = mykeydown; //キーボードを押した時の動作
+              px = 1, py = 1; // どのステージでもキャラクターの初期の場所は固定する。
+              repaint();
         }
 
-        function u(){ mykeydown({keyCode:38}); }
+
+        function init_redo() { //redoボタンのアクション
+          if (stg >= stage_map.length) return;  //stg=1までで終わり
+            data = stage_map_redo[stg];  // この行を追加
+              gc = document.getElementById("soko").getContext("2d"); //81行目のcanvasタグを呼び出す
+              onkeydown = mykeydown; //キーボードを押した時の動作
+              px = 1, py = 1; // どのステージでもキャラクターの初期の場所は固定する。
+              repaint();
+          }
+    
+
+
+        function u(){ mykeydown({keyCode:38}); } //キーボードの矢印の配置番号
         function d(){ mykeydown({keyCode:40}); }
         function l(){ mykeydown({keyCode:37}); }
         function r(){ mykeydown({keyCode:39}); }
 
         function mykeydown(e) {
-            var dx0 = px, dx1 = px, dy0 = py, dy1 = py;
+            var dx0 = px, dx1 = px, dy0 = py, dy1 = py; //dx0，dy0次に行く場所、dx1，dy2 2つ先の場所。
             switch (e.keyCode) {
-                case 37: dx0--; dx1-=2;
+                case 37: dx0--; dx1-=2; //dx0--はX座標を1個減らす、dx1-=2は2個減らす。1個左と、2個左の値を取得
                     break;
                 case 38: dy0--; dy1-=2;
                     break;
@@ -47,32 +96,57 @@
                     break;
             }
 
-            if ((data[dy0][dx0] & 0x2) == 0) {  // 荷物なし＆壁なし→進む
+            function isClear() {
+                 for(var y = 0; y < data.length; y++) {
+                     for(var x = 0; x < data[y].length; x++) {
+                         if(data[y][x] != 2) continue;
+                         return false; //２があればfalseで終了
+                     }
+                 }
+                 return true; //２がなければtrueで終了
+             }
+
+
+            if (data[dy0][dx0] == 0 || data[dy0][dx0] == 1) {  // 荷物なし＆壁なし→進む。 data[dy0][dx0] 添字、配列の数字とその配列の中の数字。
                 px = dx0;
                 py = dy0;
-            } else if ((data[dy0][dx0] & 0x6) == 2) { // 進行方向に荷物あり
-                if ((data[dy1][dx1] & 0x2) == 0) {  // 荷物なし＆壁なし→進む
-                    data[dy0][dx0] ^= 2;    // 隣の荷物をクリア
-                    data[dy1][dx1] |= 2;    // 更に先に荷物をセット
+            } else if (data[dy0][dx0] == 2 || data[dy0][dx0] == 3) { // 進行方向に荷物か荷物をおいた置き場あり
+                if (data[dy1][dx1] == 0 || data[dy1][dx1] == 1) {  // ２個先が荷物なし＆壁なし→進む
+
+                    if(data[dy0][dx0] == 3) data[dy0][dx0] = 1;    // 荷物が置いてあるゴールから、ただのゴールにする。
+                    if(data[dy0][dx0] == 2) data[dy0][dx0] = 0;    // 荷物を、通路にする。
+
+                    if(data[dy1][dx1] == 1) data[dy1][dx1] = 3;    // ただのゴールを荷物が置いてあるゴールにする。
+                    if(data[dy1][dx1] == 0) data[dy1][dx1] = 2;   // 通路を荷物にする。
+
                     px = dx0;
                     py = dy0;
                 }
             }
 
             repaint();
+
+
+            if (isClear()){  // この行を追加
+                  stg = stg + 1;
+                  init();
+                }
+
+
         }
 
         function repaint() {
-            gc.fillStyle = "black"; //一旦、真っ黒に塗りつぶす。
+            gc.fillStyle = "white"; //一旦、真っ黒に塗りつぶす。
             gc.fillRect(0, 0, 800, 440);//塗りつぶす範囲。 左二つが座標。右二つが縦横の範囲。
 
-            //ビット演算を使わずに場合分けする方がお勧め
+
+
             for (var y = 0 ; y < data.length ; y++) {
                 for (var x = 0 ; x < data[y].length ; x++) {
-                    if (data[y][x] & 0x1) { //0x1 ゼロエックスイチ 16進数で1 。ビット演算について調べる。
+                    if (data[y][x] == 1 || data[y][x] == 3) { //ゴールもしくは荷物が置かれたゴールだったら
                         gc.drawImage(imgGoal, x * 40, y * 40, 40, 40);
                     }
-                    if (data[y][x] & 0x2) { //16進数で2
+                    if (data[y][x] == 2 || data[y][x] == 3) { //荷物もしくは荷物が置かれたゴールだったら
                         gc.drawImage(imgLuggage, x * 40, y * 40, 40, 40);
                     }
                     if (data[y][x] == 6) {
@@ -82,16 +156,23 @@
             }
             gc.drawImage(imgWorker, px * 40, py * 40, 40, 40);
         }
+
+
     </script>
+
+
 </head>
 <body onload="init()">
-    <canvas id="soko" width="800" height="440"></canvas>
+    <canvas id="soko" width="400" height="240"></canvas> <!-- canvasによりdrawImage、fillRectを使用できる。-->
 <table>
     <tr><td></td><td><button onclick="u()">U</button></td><td></td></tr>
     <tr><td><button onclick="l()">L</button></td><td></td>
         <td><button onclick="r()">R</button></td></tr>
     <tr><td></td><td><button onclick="d()">D</button></td><td></td></tr>
 </table>
+<div>
+  <button class="reset-button" onclick="init_redo()">Reset</button>
+</div>
     <img id="imgWall" src="imgWall.png" style="display:none" />
     <img id="imgGoal" src="imgGoal.png" style="display:none" />
     <img id="imgWorker" src="imgWorker.png" style="display:none" />
